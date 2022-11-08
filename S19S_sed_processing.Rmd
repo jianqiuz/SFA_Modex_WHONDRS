@@ -1,0 +1,236 @@
+---
+title: "s19_sediments"
+author: "Jianqiu Zheng"
+date: "3/14/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#Load the required packages
+library(tidyverse)
+library(dplyr)
+library(reshape)
+#Set the working directory 
+setwd("~/Library/CloudStorage/OneDrive-PNNL/Documents/1SBR_SFA/WHONDRS_data/Preprocessing code")
+
+#Load WHONDRS S19S data (presence/absence)
+data <- read.csv('Processed_Clean_S19S_Water_Field_sediments_9-29_Data.csv')
+
+#Load WHONDRS S19S molarity data 
+mol <- read.csv('Processed_Clean_S19S_Water_Field_sediments_9-29_Mol.csv')
+
+```
+
+## creating a lookup table with mass
+```{r cars}
+#Change column header 
+names(data)[1] <- "Mass"
+
+#Create ID column
+data <- mutate(data, ID = row_number())
+mol <- mutate(mol, ID = row_number())
+
+#Subset mol to get df of just Mass and MolForm
+mol_subset <- mol %>% select(ID, Mass, MolForm)
+
+#Merge data and mol
+df <- merge(data, mol_subset, by= "ID")
+
+#Select wanted columns and remove NAs and 0 counts
+df_subset <- df %>% 
+              select(-one_of('ID', 'Mass.y')) %>% 
+              select('Mass.x', 'MolForm', everything()) %>% 
+              pivot_longer(!c(Mass.x, MolForm), names_to = "Site_ID", 
+                           values_to = "Count") %>%
+              filter(Count != 0)%>%
+              na.omit()
+
+
+
+#Extract the sample type (water or sediment)
+df$Type <- ifelse(grepl("Sed", df$Site_ID), "Sediment", "Water")
+
+sed_df <- filter(df, Type == "Sediment")
+water_df <- filter(df, Type == "Water")
+
+#Write df to csv file
+write.csv(sed_df,file = "S19S_sed_with_metadata.csv")
+# write.csv(water_df,file = "S19S_water_with_metadata.csv")
+
+```
+
+
+```{r cars}
+#test read csv file to make sure ID is character
+test<- read.csv("S19S_sed_with_metadata.csv",colClasses=c("ID"="character"))
+```
+
+
+```{r cars}
+#test read csv file to make sure ID is character
+meta<- read.csv("S19S_sed_with_metadata.csv",colClasses=c("ID"="character"))
+
+##load modeling results
+ther<- read.csv("S19S_sed_oxy.csv")
+
+
+
+#Select wanted columns 
+ther_subset <- ther %>% 
+              select('delGcat','lambda','ne','stoichMet_donor','stoichMet_acceptor','stoichMet_hco3','C_num','CUE')
+
+#Select wanted columns 
+meta_subset <- meta %>% 
+              select('ID','Position','MolForm')
+
+##match ID, peaks and predictions
+ther_meta<- cbind(meta_subset,ther_subset)
+
+unique(ther_meta$ID)
+
+
+```
+
+
+#plot energy distribution
+##no significant pattern 
+
+```{r mean}
+
+
+#density distribution plot
+plot1<-ggplot(data=ther_meta, aes(x=lambda))+ 
+  #geom_histogram(aes(y=..density..,color=Amendment, fill=Amendment),binwidth=40,alpha=0.2, position="identity")+ 
+  geom_density(aes(color=ID), size=1)+
+  scale_x_continuous(limits=c(0,0.2))+
+  #scale_y_continuous(limits=c(0, 2e-4),breaks=seq(0,2e-4, by=1e-4))+
+  #scale_fill_manual(values = c("#E7B800","#0073C2FF", "#FC4E07","#00AFBB")) +
+  #scale_color_manual(values = c("#E7B800","#0073C2FF", "#FC4E07","#00AFBB"))+
+  #theme_pubr(border=TRUE)+theme(legend.position=c(0.12,0.75))+  theme(panel.grid.minor.x=element_line(linetype="dashed", color="gray",size=0.2))+
+  theme(panel.grid.major.x=element_line(linetype="dashed", color="gray",size=0.2))
+## blue, red, yellow:  "#0073C2FF", "#FC4E07","#E7B800"
+plot1
+
+```
+
+#Calculating mean of each ID/Position
+```{r mean}
+mean_meta<-ther_meta%>%
+  group_by(ID, Position)%>%
+  summarise(lambda=median(lambda), soichMet_donor=mean(stoichMet_donor), stoichMet_acceptor=mean(stoichMet_acceptor), stoichMet_hco3=mean(stoichMet_hco3), C_num=mean(C_num), CUE=median(CUE))
+
+```
+
+#Seperating data by ID and position
+
+```{r sep}
+#Select upstream sediment samples 
+up.data = subset(ther_meta, Position=="Up")
+mid.data = subset(ther_meta, Position=="Mid")
+low.data = subset(ther_meta, Position=="Down")
+
+
+#Select for variables of interest---up
+var_study <- unique (up.data$ID) %>% sort() #unique study names
+length(var_study)
+#For each site subset, eliminate rows with 0 and format headers
+for (i in 1:length(var_study)) {
+   sub_study <- subset(up.data, ID == var_study[i])
+  write.csv(sub_study,file=paste0(i,"_up.csv"),row.names = FALSE)
+}
+
+#Select for variables of interest--mid
+var_study <- unique (mid.data$ID) %>% sort() #unique study names
+length(var_study)
+#For each site subset, eliminate rows with 0 and format headers
+for (i in 1:length(var_study)) {
+   sub_study <- subset(mid.data, ID == var_study[i])
+  write.csv(sub_study,file=paste0(i,"_mid.csv"),row.names = FALSE)
+}
+
+
+#Select for variables of interest---down
+var_study <- unique (low.data$ID) %>% sort() #unique study names
+length(var_study)
+#For each site subset, eliminate rows with 0 and format headers
+for (i in 1:length(var_study)) {
+   sub_study <- subset(low.data, ID == var_study[i])
+  write.csv(sub_study,file=paste0(i,"_low.csv"),row.names = FALSE)
+}
+
+```
+
+#Extract incubation and NPOC data
+```{r cars}
+
+rates<- read.csv("WHONDRS_S19S_Sediment_Incubations_Respiration_Rates.csv")
+obv <- rates %>% select(Sample_ID, rate_mg_per_L_per_h)
+colnames(obv)<-c('ID', 'rate')
+
+raw_npoc<- read.csv("WHONDRS_S19S_Sediment_NPOC_complete.csv")
+colnames(raw_npoc)<-c('study','ID', 'conc')
+npoc<-raw_npoc%>% select(ID, conc)
+
+
+#Select samples
+up_obv <- obv[grep("SED_INC-U",obv$ID), ] ##grep--globally search for a regular expression and print matching lines---return lines
+colnames(up_obv)<-c('ID', 'rate')
+unique(up_obv$ID)
+up_obv$site = str_extract(up_obv$ID, "[0-9]{4}")
+up_obv<-up_obv[,-1]
+
+up_npoc<- npoc[grep("Sed_Field_ICR-U",npoc$ID), ] 
+up_npoc$site = str_extract(up_npoc$ID, "[0-9]{4}")
+up_npoc<-up_npoc[,-1] 
+
+up<-merge(up_obv,up_npoc, by='site')
+colnames(up)<-c('site','resp','npoc')
+colnames(up.data)[1]<-"site"
+
+#Merge data by site number--modeling results and measured concentration and rates
+testtt<-merge (up.data, up,by='site') 
+write.csv(testtt,'up_all.csv', row.names = FALSE)
+
+#--------------------
+#Select samples
+mid_obv <- obv[grep("SED_INC-M",obv$ID), ] ##grep--globally search for a regular expression and print matching lines---return lines
+colnames(mid_obv)<-c('ID', 'rate')
+unique(mid_obv$ID)
+mid_obv$site = str_extract(mid_obv$ID, "[0-9]{4}")
+mid_obv<-mid_obv[,-1]
+
+mid_npoc<- npoc[grep("Sed_Field_ICR-M",npoc$ID), ] 
+mid_npoc$site = str_extract(mid_npoc$ID, "[0-9]{4}")
+mid_npoc<-mid_npoc[,-1] 
+
+mid<-merge(mid_obv,mid_npoc, by='site')
+colnames(mid)<-c('site','resp','npoc')
+colnames(mid.data)[1]<-"site"
+
+#Merge data by site number--modeling results and measured concentration and rates
+mid_all<-merge (mid.data, mid,by='site') 
+write.csv(mid_all,'mid_all.csv', row.names = FALSE)
+
+
+#--------------------
+#Select samples
+low_obv <- obv[grep("SED_INC-D",obv$ID), ] ##grep--globally search for a regular expression and print matching lines---return lines
+colnames(low_obv)<-c('ID', 'rate')
+unique(low_obv$ID)
+low_obv$site = str_extract(low_obv$ID, "[0-9]{4}")
+low_obv<-low_obv[,-1]
+
+low_npoc<- npoc[grep("Sed_Field_ICR-D",npoc$ID), ] 
+low_npoc$site = str_extract(low_npoc$ID, "[0-9]{4}")
+low_npoc<-low_npoc[,-1] 
+
+low<-merge(low_obv,low_npoc, by='site')
+colnames(low)<-c('site','resp','npoc')
+colnames(low.data)[1]<-"site"
+
+#Merge data by site number--modeling results and measured concentration and rates
+low_all<-merge (low.data, low,by='site') 
+write.csv(low_all,'low_all.csv', row.names = FALSE)
+
+
+```
