@@ -234,3 +234,106 @@ write.csv(low_all,'low_all.csv', row.names = FALSE)
 
 
 ```
+
+
+#Summerize modeling results for graphing
+
+```{r sep}
+up<- read.csv("up_all.csv",colClasses=c("site"="character"))
+mid<- read.csv("mid_all.csv",colClasses=c("site"="character"))
+low<- read.csv("low_all.csv",colClasses=c("site"="character"))
+
+
+#Select for variables of interest---up
+var_study <- unique (up$site) %>% sort() #unique study names
+length(var_study)
+#For each site subset, eliminate rows with 0 and format headers
+model_sum<- function (up){
+  t_results <- data.frame() 
+  
+  for (i in 1:length(var_study)) {
+   sub_study <- subset(up, site == var_study[i])
+   #calculate 3 rates, with stoichiometry, concentration, and umax
+   sub_study$rate1<-exp(-abs(sub_study$stoichMet_donor))
+   sub_study$rate2<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) ##value of vh
+   sub_study$rate3<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.01) ##value of vh
+   sub_study$rate4<-3/sub_study$ne * exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) #add umax
+   sub_mean <- colMeans(sub_study[sapply(sub_study, is.numeric)])
+   test<-data.frame(t(sub_mean))
+   test$site<-sub_study$site[1]
+   test$Position<-sub_study$Position[1]
+   testnew<- test[,c(15,16,1,2,3,4,5,6,7,8,9,10,11,12,13,14) ]
+
+   t_results<- rbind(t_results, testnew)
+  }
+  return(t_results)
+}
+stat_sum<-model_sum(up)
+stat_sum2<-na.omit(stat_sum)
+
+write.csv(stat_sum2,"stat_sum_up.csv",row.names = FALSE)
+
+
+#Select for variables of interest---mid
+var_study <- unique (mid$site) %>% sort() #unique study names
+length(var_study)
+#For each site subset, eliminate rows with 0 and format headers
+model_sum<- function (mid){
+  t_results <- data.frame() 
+  
+  for (i in 1:length(var_study)) {
+   sub_study <- subset(mid, site == var_study[i])
+   #calculate 3 rates, with stoichiometry, concentration, and umax
+   sub_study$rate1<-exp(-abs(sub_study$stoichMet_donor))
+   sub_study$rate2<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) ##value of vh
+   sub_study$rate3<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.01) ##value of vh
+   sub_study$rate4<-3/sub_study$ne * exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) #add umax
+   sub_mean <- colMeans(sub_study[sapply(sub_study, is.numeric)])
+   test<-data.frame(t(sub_mean))
+   test$site<-sub_study$site[1]
+   test$Position<-sub_study$Position[1]
+   testnew<- test[,c(15,16,1,2,3,4,5,6,7,8,9,10,11,12,13,14) ]
+
+   t_results<- rbind(t_results, testnew)
+  }
+  return(t_results)
+}
+stat_sum<-model_sum(mid)
+stat_sum2<-na.omit(stat_sum)
+
+write.csv(stat_sum2,"stat_sum_mid.csv",row.names = FALSE)
+
+
+#Select for variables of interest---low
+var_study <- unique (low$site) %>% sort() #unique study names
+length(var_study)
+#For each site subset, eliminate rows with 0 and format headers
+model_sum<- function (low){
+  t_results <- data.frame() 
+  
+  for (i in 1:length(var_study)) {
+   sub_study <- subset(low, site == var_study[i])
+   #calculate 3 rates, with stoichiometry, concentration, and umax
+   sub_study$rate1<-exp(-abs(sub_study$stoichMet_donor))
+   sub_study$rate2<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) ##value of vh
+   sub_study$rate3<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.01) ##value of vh
+   sub_study$rate4<-3/sub_study$ne * exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) #add umax
+   sub_mean <- colMeans(sub_study[sapply(sub_study, is.numeric)])
+   test<-data.frame(t(sub_mean))
+   test$site<-sub_study$site[1]
+   test$Position<-sub_study$Position[1]
+   testnew<- test[,c(15,16,1,2,3,4,5,6,7,8,9,10,11,12,13,14) ]
+
+   t_results<- rbind(t_results, testnew)
+  }
+  return(t_results)
+}
+stat_sum<-model_sum(mid)
+stat_sum2<-na.omit(stat_sum)
+
+write.csv(stat_sum2,"stat_sum_low.csv",row.names = FALSE)
+
+```
+
+#graphing
+
