@@ -255,14 +255,17 @@ model_sum<- function (up){
    sub_study <- subset(up, site == var_study[i])
    #calculate 3 rates, with stoichiometry, concentration, and umax
    sub_study$rate1<-exp(-abs(sub_study$stoichMet_donor))
-   sub_study$rate2<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) ##value of vh
-   sub_study$rate3<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.01) ##value of vh
-   sub_study$rate4<-3/sub_study$ne * exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) #add umax
+   sub_study$rate2<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/1) ##value of vh
+   sub_study$rate3<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) ##value of vh
+   sub_study$rate4<- exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.01) #add umax
+   sub_study$rate5<- exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.001) #add umax
+   sub_study$rate6<- exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.0001) #add umax
+   #sub_study$rate5<-3/sub_study$ne * exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) #add umax
    sub_mean <- colMeans(sub_study[sapply(sub_study, is.numeric)])
    test<-data.frame(t(sub_mean))
    test$site<-sub_study$site[1]
    test$Position<-sub_study$Position[1]
-   testnew<- test[,c(15,16,1,2,3,4,5,6,7,8,9,10,11,12,13,14) ]
+   testnew<- test[,c(17,18,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) ]
 
    t_results<- rbind(t_results, testnew)
   }
@@ -285,14 +288,17 @@ model_sum<- function (mid){
    sub_study <- subset(mid, site == var_study[i])
    #calculate 3 rates, with stoichiometry, concentration, and umax
    sub_study$rate1<-exp(-abs(sub_study$stoichMet_donor))
-   sub_study$rate2<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) ##value of vh
-   sub_study$rate3<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.01) ##value of vh
-   sub_study$rate4<-3/sub_study$ne * exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) #add umax
+   sub_study$rate2<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/1) ##value of vh
+   sub_study$rate3<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) ##value of vh
+   sub_study$rate4<- exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.01) #add umax
+   sub_study$rate5<- exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.001) #add umax
+   sub_study$rate6<- exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.0001) #add umax
+   #sub_study$rate5<-3/sub_study$ne * exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) #add umax
    sub_mean <- colMeans(sub_study[sapply(sub_study, is.numeric)])
    test<-data.frame(t(sub_mean))
    test$site<-sub_study$site[1]
    test$Position<-sub_study$Position[1]
-   testnew<- test[,c(15,16,1,2,3,4,5,6,7,8,9,10,11,12,13,14) ]
+   testnew<- test[,c(17,18,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) ]
 
    t_results<- rbind(t_results, testnew)
   }
@@ -315,14 +321,17 @@ model_sum<- function (low){
    sub_study <- subset(low, site == var_study[i])
    #calculate 3 rates, with stoichiometry, concentration, and umax
    sub_study$rate1<-exp(-abs(sub_study$stoichMet_donor))
-   sub_study$rate2<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) ##value of vh
-   sub_study$rate3<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.01) ##value of vh
-   sub_study$rate4<-3/sub_study$ne * exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) #add umax
+   sub_study$rate2<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/1) ##value of vh
+   sub_study$rate3<-exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) ##value of vh
+   sub_study$rate4<- exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.01) #add umax
+   sub_study$rate5<- exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.001) #add umax
+   sub_study$rate6<- exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.0001) #add umax
+   #sub_study$rate5<-3/sub_study$ne * exp(-abs(sub_study$stoichMet_donor)/sub_study$npoc/0.1) #add umax
    sub_mean <- colMeans(sub_study[sapply(sub_study, is.numeric)])
    test<-data.frame(t(sub_mean))
    test$site<-sub_study$site[1]
    test$Position<-sub_study$Position[1]
-   testnew<- test[,c(15,16,1,2,3,4,5,6,7,8,9,10,11,12,13,14) ]
+   testnew<- test[,c(17,18,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) ]
 
    t_results<- rbind(t_results, testnew)
   }
@@ -336,4 +345,109 @@ write.csv(stat_sum2,"stat_sum_low.csv",row.names = FALSE)
 ```
 
 #graphing
+```{r graph}
+library(ggplot2)
+library(ggpubr)
+library(scales)
+theme_pubclean()
+
+up<- read.csv("stat_sum_up.csv",colClasses=c("site"="character"))
+mid<- read.csv("stat_sum_mid.csv",colClasses=c("site"="character"))
+low<- read.csv("stat_sum_low.csv",colClasses=c("site"="character"))
+all<-rbind(up, mid, low)
+all$xlab<-1/all$npoc
+
+test1<-cor(all$resp, all$rate1, method='pearson')
+test2<-cor(all$resp, all$rate2, method='pearson')
+test3<-cor(all$resp, all$rate3, method='pearson')
+test4<-cor(all$resp, all$rate4, method='pearson')
+test5<-cor(all$resp, all$rate5, method='pearson')
+test6<-cor(all$resp, all$rate6, method='pearson')
+
+
+plot1<-ggplot(data=all, aes(x=resp, y=rate6))+ 
+  geom_point(aes(),shape=1,stroke=1,size=2)+
+  #geom_line(aes(linetype=trt),size=0.5,color="#868686FF")+
+  #scale_x_continuous(limits=c(-1,5))+
+  #scale_y_continuous(labels=scaleFUN)+
+  #facet_grid(~scen, labeller=as_labeller(trtlab))+
+  #scale_fill_manual(values = c("#868686FF","#E7B800", "#0073C2FF","#FC4E07","#00AFBB")) +
+  #scale_color_manual(values = c("#868686FF","#E7B800","#0073C2FF", "#FC4E07","#00AFBB"))+
+  theme_pubr(border=TRUE)+theme(legend.position="none")+theme(strip.text=element_text(size=14, face="bold"))
+plot1
+
+
+pred_tem<-all%>% select(xlab, rate2, rate3, rate4, rate5, rate6)
+##need to rescale rates
+pred_tem<-sapply(pred_tem, as.numeric) ##convert dataframe to numeric
+rs2<-rescale(pred_tem[,2], to=c(0,1))
+rs3<-rescale(pred_tem[,3], to=c(0,1))
+rs4<-rescale(pred_tem[,4], to=c(0,1))
+rs5<-rescale(pred_tem[,5], to=c(0,1))
+rs6<-rescale(pred_tem[,6], to=c(0,1))
+
+matx_rs2<-matrix(rs2, nrow=131)
+data_rs2<-as.data.frame(matx_rs2)
+colnames(data_rs2)<-c('scaled_r2')
+
+matx_rs3<-matrix(rs3, nrow=131)
+data_rs3<-as.data.frame(matx_rs3)
+colnames(data_rs3)<-c('scaled_r3')
+
+matx_rs4<-matrix(rs4, nrow=131)
+data_rs4<-as.data.frame(matx_rs4)
+colnames(data_rs4)<-c('scaled_r4')
+
+matx_rs5<-matrix(rs5, nrow=131)
+data_rs5<-as.data.frame(matx_rs5)
+colnames(data_rs5)<-c('scaled_r5')
+
+matx_rs6<-matrix(rs6, nrow=131)
+data_rs6<-as.data.frame(matx_rs6)
+colnames(data_rs6)<-c('scaled_r6')
+
+temp1<-all%>%select(xlab)
+temp2<-cbind(temp1, data_rs2, data_rs3, data_rs4, data_rs5)
+
+pred<-reshape2::melt(temp2, id=c("xlab"))
+
+plot2<-ggplot(data=pred, aes(x=xlab, y=value,color=variable))+ 
+  geom_point(aes(color=variable),shape=1,stroke=1,size=2)+
+  geom_smooth(aes(color=variable), method=loess, se=FALSE)+
+  #scale_x_continuous(limits=c(-1,5))+
+  #scale_y_continuous(labels=scaleFUN)+
+  #facet_grid(~scen, labeller=as_labeller(trtlab))+
+  #scale_fill_manual(values = c("#868686FF","#E7B800", "#0073C2FF","#FC4E07","#00AFBB")) +
+  scale_color_manual(values = c("#868686FF","#E7B800","#0073C2FF", "#FC4E07","#00AFBB"))+
+  theme_pubr(border=TRUE)+theme(legend.position="none")+theme(strip.text=element_text(size=14, face="bold"))+theme(legend.position="right")
+plot2
+
+pdf("scaled_rate_mumax.pdf", width=5.5, height=3.5)
+plot2
+dev.off() 
+
+
+temp1<-all%>%select(resp)
+temp2<-cbind(temp1, data_rs2, data_rs3, data_rs4, data_rs5)
+
+pred<-reshape2::melt(temp2, id=c("resp"))
+
+plot2<-ggplot(data=pred, aes(x=resp, y=value,color=variable))+ 
+  geom_point(aes(color=variable),shape=1,stroke=1,size=2)+
+  #geom_smooth(aes(color=variable), method=lm, se=FALSE)+
+  geom_abline(slope=0.025, intercept=0, linetype="dashed")+
+  #scale_x_continuous(limits=c(-1,5))+
+  #scale_y_continuous(labels=scaleFUN)+
+  #facet_grid(~scen, labeller=as_labeller(trtlab))+
+  #scale_fill_manual(values = c("#868686FF","#E7B800", "#0073C2FF","#FC4E07","#00AFBB")) +
+  scale_color_manual(values = c("#868686FF","#E7B800","#0073C2FF", "#FC4E07","#00AFBB"))+
+  theme_pubr(border=TRUE)+theme(legend.position="none")+theme(strip.text=element_text(size=14, face="bold"))+theme(legend.position="right")
+plot2
+
+pdf("resp 1 to 1.pdf", width=5.5, height=3.5)
+plot2
+dev.off() 
+
+
+```
 
